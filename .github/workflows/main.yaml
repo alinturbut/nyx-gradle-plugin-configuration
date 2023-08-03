@@ -49,10 +49,3 @@ jobs:
 
       - name: Run nyx Publish
         run: ./gradlew nyxPublish --info
-
-      - name: Publish package
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
