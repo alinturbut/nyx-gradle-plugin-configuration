@@ -1,0 +1,57 @@
+name: Publish Workflow
+on:
+  push:
+    branches: [ main ]
+# Avoid running multiple pipelines concurrently to avoid overlapping releases and tags
+concurrency:
+  group: project
+  cancel-in-progress: false
+
+jobs:
+  infer-and-publish:
+    name: Infer Version and Publish
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NYX_VERBOSITY: 'INFO'
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-          
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Run nyx Infer and set version
+        run: echo "NYX_VERSION=$(./gradlew nyxInfer -Dorg.gradle.warning.mode=none | sed -n -e 's/^.*Project version//p' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | cut -d' ' -f3)" >> $GITHUB_ENV
+
+      - name: Validate Nyx Version
+        run: echo $NYX_VERSION
+
+      - name: Run nyx Publish
+        run: ./gradlew nyxPublish --info
+
+      - name: Publish package
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

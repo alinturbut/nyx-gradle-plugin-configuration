@@ -1,0 +1,44 @@
+# The Nyx GitHub Action CI pipeline running on GitHub Actions
+
+name: Build Workflow
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build jar
+    env:
+      GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN }}
+      CONTRACT_REPOSITORY: ${{ secrets.CONTRACT_REPOSITORY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build
+        run: ./gradlew jar
+
+      - name: Run tests
+        run: ./gradlew test
