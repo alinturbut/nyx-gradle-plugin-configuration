@@ -32,7 +32,7 @@ class NyxPlugin : Plugin<Project> {
                         create("mainline") {
                             collapseVersions.set(false)
                             filterTags.set("^({{configuration.releasePrefix}})?([0-9]\\d*)\\.([0-9]\\d*)\\.([0-9]\\d*)$")
-                            gitCommit.set("true")
+                            gitCommit.set("false")
                             gitCommitMessage.set("Release version {{version}}")
                             gitPush.set("true")
                             gitTag.set("true")

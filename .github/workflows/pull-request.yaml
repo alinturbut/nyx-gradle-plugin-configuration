@@ -12,9 +12,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Build jar
-    env:
-      GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN }}
-      CONTRACT_REPOSITORY: ${{ secrets.CONTRACT_REPOSITORY }}
 
     steps:
       - name: Checkout

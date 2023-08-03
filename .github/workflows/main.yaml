@@ -11,6 +11,7 @@ jobs:
   infer-and-publish:
     name: Infer Version and Publish
     runs-on: ubuntu-latest
+    permissions: write-all
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NYX_VERBOSITY: 'INFO'
